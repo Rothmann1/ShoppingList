@@ -1,9 +1,14 @@
 package com.example.shoppinglist;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -11,7 +16,6 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
-
 import androidx.appcompat.app.AppCompatActivity;
 import java.util.ArrayList;
 
@@ -28,6 +32,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setTitle("EasyShop");
+        }
 
         editName = findViewById(R.id.edit_item_name);
         editAmount = findViewById(R.id.edit_item_amount);
@@ -89,6 +97,26 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        listView.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                new AlertDialog.Builder(MainActivity.this)
+                        .setTitle("מחיקת פריט")
+                        .setMessage("האם אתה בטוח שברצונך למחוק את הפריט?")
+                        .setPositiveButton("כן", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                shoppingList.remove(position);
+                                adapter.notifyDataSetChanged();
+                                saveData();
+                            }
+                        })
+                        .setNegativeButton("לא", null)
+                        .show();
+                return true;
+            }
+        });
+
         btnSettings.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -97,6 +125,25 @@ public class MainActivity extends AppCompatActivity {
                 startActivity(intent);
             }
         });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        menu.add(0, 1, 0, "אודות");
+        menu.add(0, 2, 0, "יציאה");
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == 1) {
+            Toast.makeText(this, "איזישופ - פותח ע\"י בן רוטמן", Toast.LENGTH_LONG).show();
+            return true;
+        } else if (item.getItemId() == 2) {
+            finish();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private void saveData() {
